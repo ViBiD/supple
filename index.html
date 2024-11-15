@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- <meta http-equiv="refresh" content="5; url="> -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta content="ViBiDSampler" property="og:title">
+    <meta content="ViBiDSampler" property="twitter:title">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="assets/video.svg"/>
+    <title>ViBiDSampler</title>
+    <meta name="description" content="keyframe interpolation">
+    <meta name="keywords" content="keyframe interpolation, image-to-video diffusion model">
+
+    <meta content="ViBiDSampler" property="twitter:title" />
+    <meta content="ViBiDSampler" property="twitter:description" />
+
+
+    <meta property="og:image" content="assets/teaser.jpg">
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content=""/>
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="assets/teaser.jpg" />
+
+    <!-- Google tag (gtag.js) -->
+    <!-- <script async src=""></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-TPWJGFG8CS');
+    </script> -->
+
+   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+   <!-- popper used for tooltips -->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+   <!-- bootstrap styling used for carousel -->
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css">
+
+   <link rel="stylesheet" href="./static/css/bulma.min.css">
+   <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+   <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+   <link rel="stylesheet" href="./static/css/index.css">
+   <link rel="stylesheet" href="./static/css/custom.css">
+   <link rel="stylesheet" href="./static/css/fonts.css">
+
+   <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+
+   <script defer src="./static/js/fontawesome.all.min.js"></script>
+   <script src="./static/js/interactions.js"></script>
+   <script src="./static/js/bulma-carousel.min.js"></script>
+   <script src="./static/js/bulma-slider.min.js"></script>
+   <meta charset="UTF-8">
+</head>
+<body>
+    <script src="static/js/select_frame.js"></script>
+
+    <section class="hero">
+        <div class="hero-body" style="padding: 3rem 1.5rem 0.5rem 1.5rem;">
+            <div class="container is-max-desktop">
+                <div class="columns is-centered">
+                    <div class="column has-text-centered">
+                        <h1 class="title is-1 publication-title" style="font-size: 44px;"><b>ViBiDSampler</b>: Enhancing Video Interpolation Using Bidirectional Diffusion Sampler</h1>
+                        <div class="column has-text-centered">
+                            <div class="publication-links">
+                                <span class="link-block">
+                                  <a href=""
+                                    class="external-link button is-normal is-rounded is-dark">
+                                    <span class="icon">
+                                      <i class="fab fa-github"></i>
+                                    </span>
+                                    <span>Code (Coming Soon)</span>
+                                  </a>
+                                </span>
+                                <!-- <span class="link-block">
+                                    <a href="https://huggingface.co/spaces/fffiloni/svd_keyframe_interpolation" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                                        <span class="icon">
+                                            <img src="assets/hf-logo.svg" />
+                                        </span>
+                                        <span>Demo</span>
+                                    </a>
+                                </span> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="hero teaser">
+    <div class="hero-body is-centered">
+      <div class="columns is-centered">
+        <div class="column is-centered is-full is-three-quarters-widescreen">
+        <video id="teaser" autoplay muted playsinline loop style="display: block; margin: auto;">
+          <source src="assets/teaser.mp4" type="video/mp4">
+        </video>
+          <h2 class="caption is-size-5 subtitle has-text-centered">
+          Keyframe interpolation result using our <b>ViBiDSampler</b> (25-frames 1024x576).
+          </h2>
+        </div>
+      </div>
+    </div>
+  </section>
+    <hr>
+
+    <section class="section">
+        <div class="container is-max-desktop">
+            <h2 class="title is-2 is-centered has-text-centered">Abstract</h2>
+                <div class="">
+                    Recent advancements in text-to-video (T2V) and image-to-video (I2V) diffusion models have improved video generation, particularly for keyframe interpolation. 
+                    However, adapting current I2V models for two-frame conditioning (start & end) remains challenging, often leading to artifacts and <b>off-manifold</b> issues. 
+                    We introduce a novel <b>bidirectional sampling strategy</b> that sequentially samples along forward and backward paths without extensive re-noising or model fine-tuning, 
+                    ensuring more coherent and <b>on-manifold</b> generation of intermediate frames.
+                    Advanced guidance techniques, CFG++ and DDS, are also employed to enhance interpolation.
+                </div>
+
+                <table style="width: 80%; margin-left:auto; margin-right:auto; text-align: center; 
+                margin-top:20px; margin-bottom:20px; background-color: rgb(245, 242, 237);" border="3" cellpadding="3">
+                  <tbody>
+                    <tr>
+                      <td style="width: 30%; font-size: 22px;"></td>
+                      <td style="width: 50%; font-size: 22px;"><strong>Ours &#128513; </strong></td>
+                    </tr>
+                    <tr>
+                      <td style="width: 30%; font-size: 20px; vertical-align:middle;">High-quality interpolation</td>
+                      <td style="width: 50%; font-size: 20px; vertical-align:middle;">Generating high-quality videos <br> between keyframes.</td>
+                    </tr>
+                    <tr>
+                      <td style="width: 30%; font-size: 20px; vertical-align:middle;">Computational effieciency</td>
+                      <td style="width: 50%; font-size: 20px; vertical-align:middle;">Not requiring extensive re-noising <br> or model fine-tuning.</td>
+                    </tr>
+                    <tr>
+                      <td style="width: 30%; font-size: 20px; vertical-align:middle;">Accessibility</td>
+                      <td style="width: 50%; font-size: 20px; vertical-align:middle;">Using open-sourced diffusion model (SVD).</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div class="">
+                    By integrating these, our method achieves state-of-the-art performance, efficiently generating high-quality, smooth videos between keyframes.      
+                    On a single 3090 GPU, our method can interpolate 25 frames at 1024x576 resolution in just 195 seconds, establishing it as a leading solution for keyframe interpolation.        
+                </div>
+         </div>
+    </section>
+    <hr>
+
+    <section class="section">
+        <div class="container is-max-desktop">
+            <h2 class="title is-2 is-centered has-text-centered">Method</h2>
+                <div class="hero is-full">
+                    <div class="results-single">
+                        <img src="assets/fig_method.jpg" style="max-width: 90%; height: auto; display: block; margin: 0 auto;">
+                    </div>
+                </div>
+                <div class="">
+                    Comparison of denoising processes between (a) Time Reversal Fusion method and (b) <b>bidirectional sampling (Ours)</b>. 
+                    Our key innovation lies in the sequential sampling of the temporal forward path and the temporal backward path by integrating a single re-noising step between them.
+                </div>
+            <h2 class="title is-3 is-centered has-text-centered" style="margin-top: 30px;">On-manifold sampling</h2>
+                <div class="hero is-full">
+                    <div class="results-single">
+                        <img src="assets/fig_manifold.jpg" style="max-width: 90%; height: auto; display: block; margin: 0 auto;">
+                    </div>
+                </div>
+                <div class="">
+                    In the geometric view of diffusion models, the sampling process is typically described as iterative transitions moving from the noisy manifold to the clean manifold.
+                    From this perspective, (a) fusing two intermediate sample points through linear interpolation on a noisy manifold can lead to an undesirable <b>off-manifold issue</b>,
+                    where the generated samples deviate from the learned data distribution.
+                    (b) <b>Bidirectional sampling</b> effectively addresses this issue by sequentially sampling both the temporal forward and backward paths, with a single re-noising step in between. 
+                    This approach enables <b>on-manifold sampling</b>, ensuring that the generated samples stay close to the learned data distribution.
+                </div>
+        </div>
+    </section>
+    <hr>
+   
+
+    <section id="results1" class="section">
+        <div class="container">
+            <h2 class="title is-2 is-centered has-text-centered">Baseline comparisons</h2>
+            <h2 class="caption is-size-5 subtitle has-text-centered">TRF & Generative Inbetweening</h2>
+            <!-- example1 -->
+            <div class="row1">
+                <div class="media1">Input pairs</div>
+                <div class="media1">TRF</div>
+                <div class="media1">Generative Inbetweening</div>
+                <div class="media1"><b>Ours</b></div>
+            </div>
+            <div class="row1">
+                <div class="media1">
+                    <img src="assets/videos/Comparisons/Pexels/Input_pairs/example1/frame1.png" alt="Image 1" data-base-path="assets/videos/Comparisons/Pexels/Input_pairs/example1/">
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Pexels/TRF/example1.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Pexels/GI/example1.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Pexels/Ours/example1.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <!-- example_robot-battle -->
+            <div class="row1">
+                <div class="media1">Input pairs</div>
+                <div class="media1">TRF</div>
+                <div class="media1">Generative Inbetweening</div>
+                <div class="media1"><b>Ours</b></div>
+            </div>
+            <div class="row1">
+                <div class="media1">
+                    <img src="assets/videos/Comparisons/Davis/Input_pairs/robot-battle/frame1.jpg" alt="Image 1" data-base-path="assets/videos/Comparisons/Davis/Input_pairs/robot-battle/">
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Davis/TRF/robot-battle.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Davis/GI/robot-battle.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Davis/Ours/robot-battle.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <!-- example_landing -->
+            <div class="row1">
+                <div class="media1">Input pairs</div>
+                <div class="media1">TRF</div>
+                <div class="media1">Generative Inbetweening</div>
+                <div class="media1"><b>Ours</b></div>
+            </div>
+            <div class="row1">
+                <div class="media1">
+                    <img src="assets/videos/Comparisons/Davis/Input_pairs/landing/frame1.jpg" alt="Image 1" data-base-path="assets/videos/Comparisons/Davis/Input_pairs/landing/">
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Davis/TRF/landing.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Davis/GI/landing.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Davis/Ours/landing.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <!-- example3 -->
+            <div class="row1">
+                <div class="media1">Input pairs</div>
+                <div class="media1">TRF</div>
+                <div class="media1">Generative Inbetweening</div>
+                <div class="media1"><b>Ours</b></div>
+            </div>
+            <div class="row1">
+                <div class="media1">
+                    <img src="assets/videos/Comparisons/Pexels/Input_pairs/example3/frame1.png" alt="Image 1" data-base-path="assets/videos/Comparisons/Pexels/Input_pairs/example3/">
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Pexels/TRF/example3.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Pexels/GI/example3.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Pexels/Ours/example3.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <!-- example8 -->
+            <div class="row1">
+                <div class="media1">Input pairs</div>
+                <div class="media1">TRF</div>
+                <div class="media1">Generative Inbetweening</div>
+                <div class="media1"><b>Ours</b></div>
+            </div>
+            <div class="row1">
+                <div class="media1">
+                    <img src="assets/videos/Comparisons/Pexels/Input_pairs/example8/frame1.png" alt="Image 1" data-base-path="assets/videos/Comparisons/Pexels/Input_pairs/example8/">
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Pexels/TRF/example8.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Pexels/GI/example8.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Pexels/Ours/example8.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+            
+            <!-- example_lindy-hop -->
+            <div class="row1">
+                <div class="media1">Input pairs</div>
+                <div class="media1">TRF</div>
+                <div class="media1">Generative Inbetweening</div>
+                <div class="media1"><b>Ours</b></div>
+            </div>
+            <div class="row1">
+                <div class="media1">
+                    <img src="assets/videos/Comparisons/Davis/Input_pairs/lindy-hop/frame1.jpg" alt="Image 1" data-base-path="assets/videos/Comparisons/Davis/Input_pairs/lindy-hop/">
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Davis/TRF/lindy-hop.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Davis/GI/lindy-hop.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Davis/Ours/lindy-hop.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <!-- example4 -->
+            <div class="row1">
+                <div class="media1">Input pairs</div>
+                <div class="media1">TRF</div>
+                <div class="media1">Generative Inbetweening</div>
+                <div class="media1"><b>Ours</b></div>
+            </div>
+            <div class="row1">
+                <div class="media1">
+                    <img src="assets/videos/Comparisons/Pexels/Input_pairs/example4/frame1.png" alt="Image 1" data-base-path="assets/videos/Comparisons/Pexels/Input_pairs/example4/">
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Pexels/TRF/example4.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Pexels/GI/example4.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Pexels/Ours/example4.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+        </div>
+    </section>
+    <hr>
+
+        <section id="results2" class="section">
+        <div class="container">
+            <h2 class="title is-2 is-centered has-text-centered">Baseline comparisons</h2>
+            <h2 class="caption is-size-5 subtitle has-text-centered">FILM & DynamiCrafter</h2>
+            <!-- example_camel -->
+            <div class="row1">
+                <div class="media1">Input pairs</div>
+                <div class="media1">FILM</div>
+                <div class="media1">DynamiCrafter</div>
+                <div class="media1"><b>Ours</b></div>
+            </div>
+            <div class="row1">
+                <div class="media1">
+                    <img src="assets/videos/Comparisons/Davis/Input_pairs/camel/frame1.jpg" alt="Image 1" data-base-path="assets/videos/Comparisons/Davis/Input_pairs/camel/">
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Davis/FILM/camel.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Davis/DC/camel.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Davis/Ours/camel.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+            
+             <!-- example6 -->
+            <div class="row1">
+                <div class="media1">Input pairs</div>
+                <div class="media1">FILM</div>
+                <div class="media1">DynamiCrafter</div>
+                <div class="media1"><b>Ours</b></div>
+            </div>
+            <div class="row1">
+                <div class="media1">
+                    <img src="assets/videos/Comparisons/Pexels/Input_pairs/example6/frame1.png" alt="Image 1" data-base-path="assets/videos/Comparisons/Pexels/Input_pairs/example6/">
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Pexels/FILM/example6.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Pexels/DC/example6.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Pexels/Ours/example6.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <!-- example_dancing -->
+            <div class="row1">
+                <div class="media1">Input pairs</div>
+                <div class="media1">FILM</div>
+                <div class="media1">DynamiCrafter</div>
+                <div class="media1"><b>Ours</b></div>
+            </div>
+            <div class="row1">
+                <div class="media1">
+                    <img src="assets/videos/Comparisons/Davis/Input_pairs/dancing/frame1.jpg" alt="Image 1" data-base-path="assets/videos/Comparisons/Davis/Input_pairs/dancing/">
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Davis/FILM/dancing.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Davis/DC/dancing.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Davis/Ours/dancing.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <!-- example_dog -->
+            <div class="row1">
+                <div class="media1">Input pairs</div>
+                <div class="media1">FILM</div>
+                <div class="media1">DynamiCrafter</div>
+                <div class="media1"><b>Ours</b></div>
+            </div>
+            <div class="row1">
+                <div class="media1">
+                    <img src="assets/videos/Comparisons/Davis/Input_pairs/dog/frame1.jpg" alt="Image 1" data-base-path="assets/videos/Comparisons/Davis/Input_pairs/dog/">
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Davis/FILM/dog.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Davis/DC/dog.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Davis/Ours/dog.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <!-- example7 -->
+            <div class="row1">
+                <div class="media1">Input pairs</div>
+                <div class="media1">FILM</div>
+                <div class="media1">DynamiCrafter</div>
+                <div class="media1"><b>Ours</b></div>
+            </div>
+            <div class="row1">
+                <div class="media1">
+                    <img src="assets/videos/Comparisons/Pexels/Input_pairs/example7/frame1.png" alt="Image 1" data-base-path="assets/videos/Comparisons/Pexels/Input_pairs/example7/">
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Pexels/FILM/example7.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Pexels/DC/example7.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="media1">
+                    <video autoplay muted loop playsinline>
+                        <source src="assets/videos/Comparisons/Pexels/Ours/example7.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+        </div>
+    </section>
+    <hr>
+
+</body>
+</html>
